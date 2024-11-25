@@ -20,3 +20,12 @@ jobs:
 
     - name: Run BDD tests
       run: npm run test:bdd
+
+    - name: Submit results to Xray
+      uses: mikepenz/xray-action@v2.4.5
+      with:
+        username: ${{ secrets.client_id }}
+        password: ${{ secrets.client_secret }}
+        testFormat: "cucumber"
+        testPaths: "test-results/cucumber-report.json"
+        testExecKey: "QA-4219"
