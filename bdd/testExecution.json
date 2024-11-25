@@ -3,7 +3,7 @@
         "project": {
             "key": "QA"
         },
-        "summary": "Brand new Test execution",
+        "summary": "This is a test execution for platform BDD tests",
         "issuetype": {
             "id": "11401"
         }
