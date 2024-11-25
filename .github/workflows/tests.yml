@@ -30,3 +30,4 @@ jobs:
         testPaths: "test-results/cucumber-report.json"
         testExecKey: "QA-4220"
         projectKey: "QA"
+        testPlanKey: "QA-4222"
