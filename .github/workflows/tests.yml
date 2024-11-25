@@ -42,8 +42,8 @@ jobs:
         echo "XRAY_TOKEN=$token" >> $GITHUB_ENV
         echo "Generated Token: $token" # This line will echo the token
       env: 
-        XRAY_CLIENT_ID: ${{ secrets.XRAY_CLIENT_ID }} 
-        XRAY_CLIENT_SECRET: ${{ secrets.XRAY_CLIENT_SECRET }}
+        XRAY_CLIENT_ID: ${{ secrets.client_id }} 
+        XRAY_CLIENT_SECRET: ${{ secrets.client_secret }}
 
     # - name: Submit Results to Xray 
     #   run: | 
