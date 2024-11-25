@@ -1,0 +1,93 @@
+[
+  {
+    "description": "    Feature Description : Creating and Reading  application",
+    "elements": [
+      {
+        "description": "",
+        "id": "application-create/read;verify-if-an-application-could-be-created-in-flex",
+        "keyword": "Scenario Outline",
+        "line": 7,
+        "name": "Verify if an application could be created in Flex",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 828501
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 8,
+            "name": "an application is created with application ID",
+            "match": {
+              "location": "bdd/steps/xray.ts:8"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 2388406
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 9,
+            "name": "receives a successful response for create",
+            "match": {
+              "location": "bdd/steps/xray.ts:13"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 731701
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 10,
+            "name": "the response is saved",
+            "match": {
+              "location": "bdd/steps/xray.ts:17"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 3107907
+            }
+          }
+        ],
+        "tags": [
+          {
+            "name": "@application",
+            "line": 1
+          },
+          {
+            "name": "@regression",
+            "line": 6
+          },
+          {
+            "name": "@sanity",
+            "line": 6
+          },
+          {
+            "name": "@QA-2428",
+            "line": 6
+          }
+        ],
+        "type": "scenario"
+      }
+    ],
+    "id": "application-create/read",
+    "line": 2,
+    "keyword": "Feature",
+    "name": "Application Create/Read",
+    "tags": [
+      {
+        "name": "@application",
+        "line": 1
+      }
+    ],
+    "uri": "bdd/features/xray.feature"
+  }
+]

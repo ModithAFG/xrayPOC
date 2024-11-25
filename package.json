@@ -1,0 +1,20 @@
+{
+  "name": "xraypoc",
+  "version": "1.0.0",
+  "description": "POC for Xray",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "test:bdd": "cucumber-js test --config=bdd/config/cucumber.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@cucumber/cucumber": "^11.1.0",
+    "@types/node": "^22.9.3",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.2"
+  },
+  "dependencies": {
+    "expect": "^29.7.0"
+  }
+}
