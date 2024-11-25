@@ -1,0 +1,15 @@
+{
+    "fields": {
+        "project": {
+            "key": "QA"
+        },
+        "summary": "Test Execution for Platform BDD",
+        "issuetype": {
+            "name": "Test Execution for Platform BDD"
+        }
+    }, 
+    "xrayFields": {
+        	"testPlanKey": "QA-4222",
+        	"environments": ["local"]
+    }
+}
