@@ -40,6 +40,7 @@ jobs:
         https://xray.cloud.getxray.app/api/v2/authenticate) 
         token=$(echo $response | tr -d '"')
         echo "XRAY_TOKEN=$token" >> $GITHUB_ENV
+        echo "Generated Token: $token" # This line will echo the token
       env: 
         XRAY_CLIENT_ID: ${{ secrets.XRAY_CLIENT_ID }} 
         XRAY_CLIENT_SECRET: ${{ secrets.XRAY_CLIENT_SECRET }}
