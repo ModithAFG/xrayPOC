@@ -21,31 +21,29 @@ jobs:
     - name: Run BDD tests
       run: npm run test:bdd
 
-    # - name: Submit results to Xray
-    #   uses: mikepenz/xray-action@v2.4.5
-    #   with:
-    #     username: ${{ secrets.client_id }}
-    #     password: ${{ secrets.client_secret }}
-    #     testFormat: "cucumber"
-    #     testPaths: "test-results/cucumber-report.json"
-    #     testExecKey: "QA-4219"
-    #     testPlanKey: "QA-4222"
-    #     testEnvironments: "SIT"
+    - name: Submit results to Xray
+      uses: mikepenz/xray-action@v2.4.5
+      with:
+        username: ${{ secrets.client_id }}
+        password: ${{ secrets.client_secret }}
+        testFormat: "cucumber"
+        testPaths: "test-results/cucumber-report.json"
+        testExecutionJson: "bdd/testExecution.json"
     
-    - name: Get Authentication Token
-      id: get-token
-      run: | 
-        response=$(curl -s -X POST -H "Content-Type: application/json" \
-        -d '{"client_id": "'"$XRAY_CLIENT_ID"'", "client_secret": "'"$XRAY_CLIENT_SECRET"'"}' \
-        https://xray.cloud.getxray.app/api/v2/authenticate) 
-        token=$(echo $response | tr -d '"')
-        echo "Generated Token: $token" # This line will echo the token
-        echo "XRAY_TOKEN=$token" >> $GITHUB_ENV
+    # - name: Get Authentication Token
+    #   id: get-token
+    #   run: | 
+    #     response=$(curl -s -X POST -H "Content-Type: application/json" \
+    #     -d '{"client_id": "'"$XRAY_CLIENT_ID"'", "client_secret": "'"$XRAY_CLIENT_SECRET"'"}' \
+    #     https://xray.cloud.getxray.app/api/v2/authenticate) 
+    #     token=$(echo $response | tr -d '"')
+    #     echo "Generated Token: $token" # This line will echo the token
+    #     echo "XRAY_TOKEN=$token" >> $GITHUB_ENV
         
-      env: 
-        XRAY_CLIENT_ID: ${{ secrets.client_id }} 
-        XRAY_CLIENT_SECRET: ${{ secrets.client_secret }}
+    #   env: 
+    #     XRAY_CLIENT_ID: ${{ secrets.client_id }} 
+    #     XRAY_CLIENT_SECRET: ${{ secrets.client_secret }}
 
-    - name: Submit Results to Xray 
-      run: | 
-       curl -H "Content-Type: multipart/form-data" -X POST -F info=@bdd/testExecution.json -F results=@test-results/cucumber-report.json -H "Authorization: Bearer $XRAY_TOKEN" https://xray.cloud.getxray.app/api/v2/import/execution/cucumber/multipart
+    # - name: Submit Results to Xray 
+    #   run: | 
+    #    curl -H "Content-Type: multipart/form-data" -X POST -F info=@bdd/testExecution.json -F results=@test-results/cucumber-report.json -H "Authorization: Bearer $XRAY_TOKEN" https://xray.cloud.getxray.app/api/v2/import/execution/cucumber/multipart
