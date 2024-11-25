@@ -28,7 +28,7 @@ jobs:
         password: ${{ secrets.client_secret }}
         testFormat: "cucumber"
         testPaths: "test-results/cucumber-report.json"
-        testExecutionJson: "bdd/testExecution.json"
+        testExecutionJson: "bdd/testExecution.json"  
     
     # - name: Get Authentication Token
     #   id: get-token
