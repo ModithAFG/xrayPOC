@@ -48,4 +48,4 @@ jobs:
 
     - name: Submit Results to Xray 
       run: | 
-       curl -H "Content-Type: multipart/form-data" -X POST -F info=@bdd/testExecution.json -F results=@test-results/cucumber-report.json -H "Authorization: Bearer $XRAY_TOKEN" https://xray.cloud.getxray.app/api/v2/import/execution/cucumber/multipart
+       curl -H "Content-Type: multipart/form-data" -X POST -F info=@bdd/testExecution.json -F results=@test-results/cucumber-report.json -H "Authorization: Bearer $XRAY_TOKEN" https://xray.cloud.getxray.app/api/v2/import/execution/cucumber/multipart?testExecKey=QA-4219
