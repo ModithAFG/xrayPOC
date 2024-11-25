@@ -40,16 +40,17 @@ jobs:
         https://xray.cloud.getxray.app/api/v2/authenticate) 
         token=$(echo $response | tr -d '"')
         echo "Generated Token: $token" # This line will echo the token
-       # echo "XRAY_TOKEN=$token" >> $GITHUB_ENV
+        echo "XRAY_TOKEN=$token" >> $GITHUB_ENV
         
       env: 
         XRAY_CLIENT_ID: ${{ secrets.client_id }} 
         XRAY_CLIENT_SECRET: ${{ secrets.client_secret }}
 
-    # - name: Submit Results to Xray 
-    #   run: | 
-    #    curl -H "Content-Type: multipart/form-data" \ 
-    #     -H "Authorization: Bearer ${{ steps.get-token.outputs.token }}" \
-    #     -F "info=@test-execution.json;type=application/json" \ 
-    #     -F "results=@test-results/cucumber-report.json;type=application/json" \ 
-    #     https://xray.cloud.getxray.app/api/v2/import/execution/cucumber/multipart
+    - name: Submit Results to Xray 
+      run: | 
+       curl -H "Content-Type: multipart/form-data" \ 
+        -X POST \
+        -H "Authorization: Bearer $XRAY_TOKEN" \
+        -F "info=@bdd/testExecution.json;type=application/json" \ 
+        -F "results=@test-results/cucumber-report.json;type=application/json" \ 
+        https://xray.cloud.getxray.app/api/v2/import/execution/cucumber/multipart
