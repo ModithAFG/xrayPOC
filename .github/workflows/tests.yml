@@ -5,6 +5,8 @@ on: [push, pull_request]
 jobs:
   test:
     runs-on: ubuntu-latest
+    env: 
+      ENV: "QA"
 
     steps:
     - name: Checkout repository
@@ -22,6 +24,7 @@ jobs:
       run: npm run test:bdd
 
     - name: Submit results to Xray
+      if: env.ENV == 'QA'
       uses: mikepenz/xray-action@v2.4.5
       with:
         username: ${{ secrets.client_id }}
