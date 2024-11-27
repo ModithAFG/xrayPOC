@@ -34,8 +34,7 @@ jobs:
         #testExecKey: "QA-4219"
         #testPlanKey: "QA-4222"
         #projectKey: "QA"
-        testExecutionJson: "bdd/testExecution.json"  
-        testEnvironments: "QA"
+        testExecutionJson: "bdd/testExecution.json"
     
     # - name: Get Authentication Token
     #   id: get-token

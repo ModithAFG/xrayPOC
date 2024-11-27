@@ -9,7 +9,6 @@
         }
     },
     "xrayFields": {
-        "testPlanKey": "QA-4222",
-        "testEnvironments": "SIT"
+        "testPlanKey": "QA-4222"
     }
 }
