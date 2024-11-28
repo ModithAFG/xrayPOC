@@ -1,0 +1,14 @@
+{
+  "fields": {
+    "project": {
+      "key": "QA"
+    },
+    "summary": "This is a test execution for platform BDD tests 2024-11-28T02:41:13.423Z",
+    "issuetype": {
+      "id": "11401"
+    }
+  },
+  "xrayFields": {
+    "testPlanKey": "QA-4222"
+  }
+}

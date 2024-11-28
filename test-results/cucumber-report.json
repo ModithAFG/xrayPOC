@@ -14,7 +14,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 565524
+              "duration": 683603
             }
           },
           {
@@ -27,7 +27,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 916438
+              "duration": 1364806
             }
           },
           {
@@ -40,7 +40,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 472920
+              "duration": 759103
             }
           },
           {
@@ -52,9 +52,8 @@
               "location": "bdd/steps/xray.ts:17"
             },
             "result": {
-              "status": "failed",
-              "duration": 5654141,
-              "error_message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mfalse\u001b[39m\nReceived: \u001b[31mtrue\u001b[39m\n    at World.<anonymous> (/home/modith/xrayPOC/bdd/steps/xray.ts:20:16)\n    at /home/modith/xrayPOC/bdd/steps/xray.ts:8:71\n    at __awaiter (/home/modith/xrayPOC/bdd/steps/xray.ts:4:12)\n    at World.<anonymous> (/home/modith/xrayPOC/bdd/steps/xray.ts:32:12)"
+              "status": "passed",
+              "duration": 574901
             }
           }
         ],
