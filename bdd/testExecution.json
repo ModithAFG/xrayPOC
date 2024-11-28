@@ -1,15 +1,14 @@
 {
     "fields": {
-        "project": {
-            "key": "QA"
-        },
-        "summary": "This is a test execution for platform BDD tests",
-        "issuetype": {
-            "id": "11401"
-        }
+      "project": {
+        "key": "QA"
+      },
+      "summary": "Test Execution for Platform BDD tests -  SIT - Thu Nov 28 2024 12:47:36",
+      "issuetype": {
+        "id": "11401"
+      }
     },
     "xrayFields": {
-        "testPlanKey": "QA-4222"
+      "testPlanKey": "QA-4222"
     }
-}
-
+  }
