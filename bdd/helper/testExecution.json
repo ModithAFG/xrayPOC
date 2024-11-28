@@ -3,12 +3,12 @@
     "project": {
       "key": "QA"
     },
-    "summary": "Test Execution for Platform BDD tests -  local - Thu Nov 28 2024 12:49:37",
+    "summary": "Test Execution for Platform BDD tests -  local - Thu Nov 28 2024 13:55:26 GMT+0800 (Australian Western Standard Time)",
     "issuetype": {
-      "id": ""
+      "id": "11401"
     }
   },
   "xrayFields": {
-    "testPlanKey": ""
+    "testPlanKey": "QA-4222"
   }
 }

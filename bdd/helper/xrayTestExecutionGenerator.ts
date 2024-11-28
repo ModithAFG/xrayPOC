@@ -31,18 +31,18 @@ export function xrayConfigFile(fileName: string) {
       },
       summary: 'Test Execution for Platform BDD tests - ',
       issuetype: {
-        id: issueType(),
+        id: '11401',
       },
     },
     xrayFields: {
-      testPlanKey: testPlanID(),
+      testPlanKey: 'QA-4222',
     },
   };
 
   // Append the environment to the summary field
   issue.fields.summary += ` ${environment()}`;
   const dateTime = new Date();
-  const cleanedTime = dateTime.toString().split('GMT')[0].trim();
+  const cleanedTime = dateTime//toString().split('GMT')[0].trim();
   // Append current date to the summary field
   issue.fields.summary += ` - ${cleanedTime}`;
 
