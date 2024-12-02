@@ -31,11 +31,11 @@ export function xrayConfigFile(fileName: string) {
       },
       summary: 'Test Execution for Platform BDD tests - ',
       issuetype: {
-        id: '11401',
+        id: '',
       },
     },
     xrayFields: {
-      testPlanKey: 'QA-4222',
+      testPlanKey: '',
     },
   };
 
