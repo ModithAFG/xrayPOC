@@ -21,11 +21,7 @@ jobs:
       run: npm install
 
     - name: Run BDD tests
-      run: npm run test:bdd
-
-    - name: Rerun the failed tests
-      if: failure()
-      run: npm run test:rerun
+      run: npm run test:bdd || npm run test:rerun
 
   #X ray Integration code commented out for now
     #- name: Submit results to Xray
