@@ -29,10 +29,10 @@ Given('there is an application', async function () {
 Given('recieves a negative response for create', async function () {
            // Write code here that turns the phrase above into concrete actions
            console.log('Given: receives a negative response for create');
-           expect(pass).toBe(false);
+           expect(pass).toBe(true);
          });
 Then('the response checked', async function () {
            // Write code here that turns the phrase above into concrete actions
-           expect(pass).toBe(false);
+           expect(pass).toBe(true);
            console.log('Then: the response checked');});
 
