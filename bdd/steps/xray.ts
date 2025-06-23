@@ -33,6 +33,6 @@ Given('recieves a negative response for create', async function () {
          });
 Then('the response checked', async function () {
            // Write code here that turns the phrase above into concrete actions
-           expect(pass).toBe(true);
+           expect(pass).toBe(false);
            console.log('Then: the response checked');});
 
