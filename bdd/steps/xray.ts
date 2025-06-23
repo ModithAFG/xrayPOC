@@ -20,3 +20,19 @@ Then('the response is saved', async function () {
   //expect(pass).toBe(false);
     
 });
+
+Given('there is an application', async function () {
+           // Write code here that turns the phrase above into concrete actions
+           console.log('Given: there is an application');
+         });
+
+Given('recieves a negative response for create', async function () {
+           // Write code here that turns the phrase above into concrete actions
+           console.log('Given: receives a negative response for create');
+           expect(pass).toBe(false);
+         });
+Then('the response checked', async function () {
+           // Write code here that turns the phrase above into concrete actions
+           expect(pass).toBe(false);
+           console.log('Then: the response checked');});
+

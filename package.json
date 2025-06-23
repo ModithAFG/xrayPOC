@@ -4,7 +4,8 @@
   "description": "POC for Xray",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "test:bdd": "cucumber-js test --config=bdd/config/cucumber.js"
+    "test:bdd": "cucumber-js test --config=bdd/config/cucumber.js",
+    "test:rerun": "cucumber-js test --config=bdd/config/cucumber.js -p rerun @rerun.txt"
   },
   "author": "",
   "license": "ISC",

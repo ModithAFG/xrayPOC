@@ -4,56 +4,57 @@
     "elements": [
       {
         "description": "",
-        "id": "application-create/read;verify-if-an-application-could-be-created-in-flex",
+        "id": "application-create/read;verify-negative-scenario",
         "keyword": "Scenario Outline",
-        "line": 7,
-        "name": "Verify if an application could be created in Flex",
+        "line": 15,
+        "name": "Verify negative scenario",
         "steps": [
           {
             "keyword": "Before",
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 755603
+              "duration": 947472
             }
           },
           {
             "arguments": [],
             "keyword": "Given ",
-            "line": 8,
-            "name": "an application is created with application ID",
+            "line": 16,
+            "name": "there is an application",
             "match": {
-              "location": "bdd/steps/xray.ts:8"
+              "location": "bdd/steps/xray.ts:24"
             },
             "result": {
               "status": "passed",
-              "duration": 995304
+              "duration": 876366
             }
           },
           {
             "arguments": [],
             "keyword": "And ",
-            "line": 9,
-            "name": "receives a successful response for create",
+            "line": 17,
+            "name": "recieves a negative response for create",
             "match": {
-              "location": "bdd/steps/xray.ts:13"
+              "location": "bdd/steps/xray.ts:29"
             },
             "result": {
-              "status": "passed",
-              "duration": 556701
+              "status": "failed",
+              "duration": 5597331,
+              "error_message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mfalse\u001b[39m\nReceived: \u001b[31mtrue\u001b[39m\n    at World.<anonymous> (/home/modith/xrayPOC/bdd/steps/xray.ts:32:25)\n    at /home/modith/xrayPOC/bdd/steps/xray.ts:8:71\n    at __awaiter (/home/modith/xrayPOC/bdd/steps/xray.ts:4:12)\n    at World.<anonymous> (/home/modith/xrayPOC/bdd/steps/xray.ts:45:12)"
             }
           },
           {
             "arguments": [],
             "keyword": "Then ",
-            "line": 10,
-            "name": "the response is saved",
+            "line": 18,
+            "name": "the response checked",
             "match": {
-              "location": "bdd/steps/xray.ts:17"
+              "location": "bdd/steps/xray.ts:34"
             },
             "result": {
-              "status": "passed",
-              "duration": 564002
+              "status": "skipped",
+              "duration": 0
             }
           }
         ],
@@ -64,15 +65,15 @@
           },
           {
             "name": "@regression",
-            "line": 6
+            "line": 14
           },
           {
             "name": "@sanity",
-            "line": 6
+            "line": 14
           },
           {
             "name": "@QA-2428",
-            "line": 6
+            "line": 14
           }
         ],
         "type": "scenario"
