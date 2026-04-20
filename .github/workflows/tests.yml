@@ -83,13 +83,57 @@ jobs:
 
     - name: Notify dedicated teams channel
       if: success() || failure()
-      uses: jdcargile/ms-teams-notification@v1.4
-      with:
-        github-token: ${{ github.token }}
-        ms-teams-webhook-uri: https://afgtest.webhook.office.com/webhookb2/526935bf-3267-4f9e-a896-31a73dac597e@f7a3baa7-fae3-415b-b481-a71ed92d3103/IncomingWebhook/cfae1b3a8ab24238b7a9c5e95eb1b560/fddd096f-a6ac-4669-a86e-83a4d17b38a4/V2M-or91x-1APxfGbwSCuCecVYAcm7pgIDj1Tsh6jJPAw1
-        notification-summary: "**BDD Test Run: ${{ job.status == 'success' && '✅ PASSED' || '❌ FAILED' }}** | Env: ${{ env.ENV }} | Branch: ${{ github.ref_name }}<br>📊 Features: ${{ steps.test-results.outputs.features }} | Scenarios: ${{ steps.test-results.outputs.scenarios }} (${{ steps.test-results.outputs.scenarios_passed }} passed, ${{ steps.test-results.outputs.scenarios_failed }} failed)<br>✅ Passed: ${{ steps.test-results.outputs.passed }} | ❌ Failed: ${{ steps.test-results.outputs.failed }} | ⏭️ Skipped: ${{ steps.test-results.outputs.skipped }} | Total Steps: ${{ steps.test-results.outputs.total }}<br>⏱️ Duration: ${{ steps.test-results.outputs.duration }}s<br>📎 [View Artifacts](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})"
-        notification-color: ${{ job.status == 'success' && '28a745' || 'dc3545' }}
-        verbose-logging: true
+      run: |
+        STATUS="${{ job.status }}"
+        if [ "$STATUS" = "success" ]; then
+          COLOR="28a745"
+          TITLE="✅ BDD Test Run PASSED"
+        else
+          COLOR="dc3545"
+          TITLE="❌ BDD Test Run FAILED"
+        fi
+
+        cat <<EOF > /tmp/teams-payload.json
+        {
+          "@type": "MessageCard",
+          "@context": "http://schema.org/extensions",
+          "themeColor": "${COLOR}",
+          "summary": "${TITLE}",
+          "sections": [
+            {
+              "activityTitle": "${TITLE}",
+              "activitySubtitle": "CI #${{ github.run_number }} on ${{ github.repository }} | Branch: ${{ github.ref_name }} | Env: ${{ env.ENV }}",
+              "facts": [
+                { "name": "Features", "value": "${{ steps.test-results.outputs.features }}" },
+                { "name": "Scenarios", "value": "${{ steps.test-results.outputs.scenarios }} (${{ steps.test-results.outputs.scenarios_passed }} passed, ${{ steps.test-results.outputs.scenarios_failed }} failed)" },
+                { "name": "Steps Passed", "value": "${{ steps.test-results.outputs.passed }}" },
+                { "name": "Steps Failed", "value": "${{ steps.test-results.outputs.failed }}" },
+                { "name": "Steps Skipped", "value": "${{ steps.test-results.outputs.skipped }}" },
+                { "name": "Total Steps", "value": "${{ steps.test-results.outputs.total }}" },
+                { "name": "Duration", "value": "${{ steps.test-results.outputs.duration }}s" },
+                { "name": "Triggered by", "value": "${{ github.actor }}" },
+                { "name": "Commit", "value": "${{ github.sha }}" }
+              ],
+              "markdown": true
+            }
+          ],
+          "potentialAction": [
+            {
+              "@type": "OpenUri",
+              "name": "View Workflow Run",
+              "targets": [{ "os": "default", "uri": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" }]
+            },
+            {
+              "@type": "OpenUri",
+              "name": "View Commit",
+              "targets": [{ "os": "default", "uri": "https://github.com/${{ github.repository }}/commit/${{ github.sha }}" }]
+            }
+          ]
+        }
+        EOF
+
+        curl -s -H "Content-Type: application/json" -d @/tmp/teams-payload.json \
+          "https://afgtest.webhook.office.com/webhookb2/526935bf-3267-4f9e-a896-31a73dac597e@f7a3baa7-fae3-415b-b481-a71ed92d3103/IncomingWebhook/cfae1b3a8ab24238b7a9c5e95eb1b560/fddd096f-a6ac-4669-a86e-83a4d17b38a4/V2M-or91x-1APxfGbwSCuCecVYAcm7pgIDj1Tsh6jJPAw1"
 
    
 
