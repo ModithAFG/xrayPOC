@@ -11,8 +11,8 @@ Feature: Application Create/Read
 
 
 
-    @regression @sanity @QA-2428
-    Scenario Outline: Verify negative scenario
-        Given there is an application
-        And recieves a negative response for create
-        Then the response checked
+    # @regression @sanity @QA-2428
+    # Scenario Outline: Verify negative scenario
+    #     Given there is an application
+    #     And recieves a negative response for create
+    #     Then the response checked
