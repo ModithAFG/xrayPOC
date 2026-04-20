@@ -1,110 +1,145 @@
 import fs from 'fs';
 import path from 'path';
 import https from 'https';
-import http from 'http';
 import { URL } from 'url';
 
-interface StepResult {
-  status: string;
-  duration?: number;
+// ── Types ──────────────────────────────────────────────────
+
+interface CucumberReport {
+  elements?: Scenario[];
+}
+
+interface Scenario {
+  steps?: Step[];
+  tags?: { name: string }[];
 }
 
 interface Step {
   hidden?: boolean;
-  result: StepResult;
+  result: { status: string };
 }
 
-interface Element {
-  steps?: Step[];
-}
-
-interface Feature {
-  elements?: Element[];
-}
-
-interface Results {
+interface TestResults {
   features: number;
   scenarios: number;
   passed: number;
   failed: number;
   skipped: number;
   total: number;
+  tags: string[];
 }
 
-// --- Parse cucumber results ---
-const reportPath = path.resolve('test-results/cucumber-report.json');
-let results: Results = { features: 0, scenarios: 0, passed: 0, failed: 0, skipped: 0, total: 0 };
+// ── Helpers ────────────────────────────────────────────────
 
-if (fs.existsSync(reportPath)) {
-  const report: Feature[] = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
+const env = (key: string, fallback = ''): string => process.env[key] || fallback;
+
+function parseReport(reportPath: string): TestResults {
+  const empty: TestResults = { features: 0, scenarios: 0, passed: 0, failed: 0, skipped: 0, total: 0, tags: [] };
+
+  if (!fs.existsSync(reportPath)) return empty;
+
+  const report: CucumberReport[] = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
+  const tags = new Set<string>();
   let passed = 0, failed = 0, skipped = 0, scenarios = 0;
 
-  report.forEach(feature => {
-    (feature.elements || []).forEach(element => {
+  for (const feature of report) {
+    for (const scenario of feature.elements ?? []) {
       scenarios++;
-      (element.steps || []).forEach(step => {
-        if (step.hidden) return;
-        if (step.result.status === 'passed') passed++;
-        else if (step.result.status === 'failed') failed++;
+      scenario.tags?.forEach(t => tags.add(t.name));
+
+      for (const step of scenario.steps ?? []) {
+        if (step.hidden) continue;
+        const { status } = step.result;
+        if (status === 'passed') passed++;
+        else if (status === 'failed') failed++;
         else skipped++;
+      }
+    }
+  }
+
+  return {
+    features: report.length,
+    scenarios,
+    passed,
+    failed,
+    skipped,
+    total: passed + failed + skipped,
+    tags: [...tags],
+  };
+}
+
+function writeGitHubOutputs(results: TestResults): void {
+  const outputPath = process.env.GITHUB_OUTPUT;
+  if (!outputPath) return;
+
+  const { tags, ...outputs } = results;
+  for (const [key, value] of Object.entries(outputs)) {
+    fs.appendFileSync(outputPath, `${key}=${value}\n`);
+  }
+}
+
+function buildTeamsCard(results: TestResults): object {
+  const isSuccess = env('JOB_STATUS') === 'success';
+  const repo = env('REPO');
+  const runId = env('RUN_ID');
+  const sha = env('SHA');
+
+  return {
+    '@type': 'MessageCard',
+    '@context': 'http://schema.org/extensions',
+    themeColor: isSuccess ? '28a745' : 'dc3545',
+    text: [
+      `**${isSuccess ? '✅' : '❌'} BDD Test Run: ${isSuccess ? 'PASSED' : 'FAILED'}** | Env: ${env('ENV_NAME')} | Branch: ${env('BRANCH')}`,
+      '',
+      `🏷️ **Tags:** ${results.tags.join(', ') || 'none'}`,
+      `📊 **Features:** ${results.features} | **Scenarios:** ${results.scenarios}`,
+      `✅ **Passed:** ${results.passed} | ❌ **Failed:** ${results.failed} | ⏭️ **Skipped:** ${results.skipped} | **Total Steps:** ${results.total}`,
+      '',
+      `👤 **Triggered by:** ${env('ACTOR')} | **Commit:** ${sha.substring(0, 7)}`,
+      '',
+      `[View Workflow Run](https://github.com/${repo}/actions/runs/${runId}) | [View Commit](https://github.com/${repo}/commit/${sha}) | [Download Artifacts](https://github.com/${repo}/actions/runs/${runId}#artifacts)`,
+    ].join('<br>'),
+  };
+}
+
+function sendNotification(webhookUrl: string, card: object): Promise<void> {
+  const url = new URL(webhookUrl);
+  const payload = JSON.stringify(card);
+
+  return new Promise((resolve, reject) => {
+    const req = https.request(url, { method: 'POST', headers: { 'Content-Type': 'application/json' } }, (res) => {
+      let body = '';
+      res.on('data', (chunk) => (body += chunk));
+      res.on('end', () => {
+        console.log(`Teams notification sent: ${res.statusCode} ${body}`);
+        resolve();
       });
     });
+    req.on('error', reject);
+    req.write(payload);
+    req.end();
   });
-
-  results = { features: report.length, scenarios, passed, failed, skipped, total: passed + failed + skipped };
 }
 
-// --- Write outputs for other steps if needed ---
-const githubOutput = process.env.GITHUB_OUTPUT;
-if (githubOutput) {
-  Object.entries(results).forEach(([k, v]) =>
-    fs.appendFileSync(githubOutput, `${k}=${v}\n`)
-  );
+// ── Main ───────────────────────────────────────────────────
+
+async function main(): Promise<void> {
+  const reportPath = path.resolve('test-results/cucumber-report.json');
+  const results = parseReport(reportPath);
+
+  writeGitHubOutputs(results);
+
+  const webhookUrl = env('WEBHOOK_URL');
+  if (!webhookUrl) {
+    console.log('No WEBHOOK_URL set, skipping notification');
+    return;
+  }
+
+  const card = buildTeamsCard(results);
+  await sendNotification(webhookUrl, card);
 }
 
-// --- Send Teams notification ---
-const webhookUrl = process.env.WEBHOOK_URL;
-if (!webhookUrl) {
-  console.log('No WEBHOOK_URL set, skipping notification');
-  process.exit(0);
-}
-
-const jobStatus = process.env.JOB_STATUS || 'failure';
-const isSuccess = jobStatus === 'success';
-const color = isSuccess ? '28a745' : 'dc3545';
-const icon = isSuccess ? '✅' : '❌';
-const status = isSuccess ? 'PASSED' : 'FAILED';
-const shortSha = (process.env.SHA || '').substring(0, 7);
-const repo = process.env.REPO || '';
-const runId = process.env.RUN_ID || '';
-
-const payload = JSON.stringify({
-  "@type": "MessageCard",
-  "@context": "http://schema.org/extensions",
-  themeColor: color,
-  text: [
-    `**${icon} BDD Test Run: ${status}** | Env: ${process.env.ENV_NAME || ''} | Branch: ${process.env.BRANCH || ''}`,
-    '',
-    `📊 **Features:** ${results.features} | **Scenarios:** ${results.scenarios}`,
-    `✅ **Passed:** ${results.passed} `,
-    `❌ **Failed:** ${results.failed} `,
-    `⏭️ **Skipped:** ${results.skipped}`,
-    ` **Total Steps:** ${results.total}`,
-    '',
-    `👤 **Triggered by:** ${process.env.ACTOR || ''} | **Commit:** ${shortSha}`,
-    '',
-    `[View Workflow Run](https://github.com/${repo}/actions/runs/${runId}) | [View Commit](https://github.com/${repo}/commit/${process.env.SHA || ''}) | [Download Artifacts](https://github.com/${repo}/actions/runs/${runId}#artifacts)`
-  ].join('<br>')
+main().catch((err) => {
+  console.error('Failed:', err);
+  process.exit(1);
 });
-
-const url = new URL(webhookUrl);
-const transport = url.protocol === 'https:' ? https : http;
-
-const req = transport.request(url, { method: 'POST', headers: { 'Content-Type': 'application/json' } }, (res) => {
-  let body = '';
-  res.on('data', (d) => body += d);
-  res.on('end', () => console.log('Teams notification sent:', res.statusCode, body));
-});
-req.on('error', (err) => { console.error('Failed to send notification:', err.message); process.exit(1); });
-req.write(payload);
-req.end();
