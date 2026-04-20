@@ -21,7 +21,34 @@ jobs:
       run: npm install
 
     - name: Run BDD tests
+      id: bdd-tests
       run: npm run test:bdd || npm run test:rerun
+
+    - name: Parse test results
+      if: success() || failure()
+      id: test-results
+      run: |
+        if [ -f test-results/cucumber-report.json ]; then
+          TOTAL=$(node -e "const r=require('./test-results/cucumber-report.json'); let p=0,f=0,s=0; r.forEach(f2 => f2.elements?.forEach(e => e.steps?.forEach(st => { if(st.result.status==='passed') p++; else if(st.result.status==='failed') f++; else s++; }))); console.log(p+f+s);")
+          PASSED=$(node -e "const r=require('./test-results/cucumber-report.json'); let p=0; r.forEach(f2 => f2.elements?.forEach(e => e.steps?.forEach(st => { if(st.result.status==='passed') p++; }))); console.log(p);")
+          FAILED=$(node -e "const r=require('./test-results/cucumber-report.json'); let f=0; r.forEach(f2 => f2.elements?.forEach(e => e.steps?.forEach(st => { if(st.result.status==='failed') f++; }))); console.log(f);")
+          SKIPPED=$(node -e "const r=require('./test-results/cucumber-report.json'); let s=0; r.forEach(f2 => f2.elements?.forEach(e => e.steps?.forEach(st => { if(st.result.status!=='passed' && st.result.status!=='failed') s++; }))); console.log(s);")
+          SCENARIOS=$(node -e "const r=require('./test-results/cucumber-report.json'); let t=0; r.forEach(f2 => f2.elements?.forEach(() => t++)); console.log(t);")
+          FEATURES=$(node -e "const r=require('./test-results/cucumber-report.json'); console.log(r.length);")
+          echo "total=$TOTAL" >> $GITHUB_OUTPUT
+          echo "passed=$PASSED" >> $GITHUB_OUTPUT
+          echo "failed=$FAILED" >> $GITHUB_OUTPUT
+          echo "skipped=$SKIPPED" >> $GITHUB_OUTPUT
+          echo "scenarios=$SCENARIOS" >> $GITHUB_OUTPUT
+          echo "features=$FEATURES" >> $GITHUB_OUTPUT
+        else
+          echo "total=0" >> $GITHUB_OUTPUT
+          echo "passed=0" >> $GITHUB_OUTPUT
+          echo "failed=0" >> $GITHUB_OUTPUT
+          echo "skipped=0" >> $GITHUB_OUTPUT
+          echo "scenarios=0" >> $GITHUB_OUTPUT
+          echo "features=0" >> $GITHUB_OUTPUT
+        fi
 
     - name: Notify dedicated teams channel
       if: success() || failure()
@@ -29,8 +56,11 @@ jobs:
       with:
         github-token: ${{ github.token }}
         ms-teams-webhook-uri: https://afgtest.webhook.office.com/webhookb2/526935bf-3267-4f9e-a896-31a73dac597e@f7a3baa7-fae3-415b-b481-a71ed92d3103/IncomingWebhook/cfae1b3a8ab24238b7a9c5e95eb1b560/fddd096f-a6ac-4669-a86e-83a4d17b38a4/V2M-or91x-1APxfGbwSCuCecVYAcm7pgIDj1Tsh6jJPAw1
-        notification-summary: "This is your test summary Test Run ${{ job.status }}"
-        notification-color: 17a2b8
+        notification-summary: |
+          **BDD Test Run: ${{ job.status == 'success' && '✅ PASSED' || '❌ FAILED' }}** | Env: ${{ env.ENV }} | Branch: ${{ github.ref_name }}
+          📊 Features: ${{ steps.test-results.outputs.features }} | Scenarios: ${{ steps.test-results.outputs.scenarios }}
+          ✅ Passed: ${{ steps.test-results.outputs.passed }} | ❌ Failed: ${{ steps.test-results.outputs.failed }} | ⏭️ Skipped: ${{ steps.test-results.outputs.skipped }} | Total Steps: ${{ steps.test-results.outputs.total }}
+        notification-color: ${{ job.status == 'success' && '28a745' || 'dc3545' }}
         verbose-logging: true
 
    
