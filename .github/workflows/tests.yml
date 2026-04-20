@@ -54,13 +54,46 @@ jobs:
 
     - name: Notify dedicated teams channel
       if: success() || failure()
-      uses: jdcargile/ms-teams-notification@v1.4
-      with:
-        github-token: ${{ github.token }}
-        ms-teams-webhook-uri: https://afgtest.webhook.office.com/webhookb2/526935bf-3267-4f9e-a896-31a73dac597e@f7a3baa7-fae3-415b-b481-a71ed92d3103/IncomingWebhook/cfae1b3a8ab24238b7a9c5e95eb1b560/fddd096f-a6ac-4669-a86e-83a4d17b38a4/V2M-or91x-1APxfGbwSCuCecVYAcm7pgIDj1Tsh6jJPAw1
-        notification-summary: "**BDD Test Run: ${{ job.status == 'success' && '✅ PASSED' || '❌ FAILED' }}** | <br> Env: ${{ env.ENV }} | <br> Branch: ${{ github.ref_name }}<br>📊 Features: ${{ steps.test-results.outputs.features }} | Scenarios: ${{ steps.test-results.outputs.scenarios }}<br>✅ Passed: ${{ steps.test-results.outputs.passed }} | ❌ Failed: ${{ steps.test-results.outputs.failed }} | ⏭️ Skipped: ${{ steps.test-results.outputs.skipped }} | Total Steps: ${{ steps.test-results.outputs.total }}"
-        notification-color: ${{ job.status == 'success' && '28a745' || 'dc3545' }}
-        verbose-logging: true
+      env:
+        WEBHOOK_URL: "https://afgtest.webhook.office.com/webhookb2/526935bf-3267-4f9e-a896-31a73dac597e@f7a3baa7-fae3-415b-b481-a71ed92d3103/IncomingWebhook/cfae1b3a8ab24238b7a9c5e95eb1b560/fddd096f-a6ac-4669-a86e-83a4d17b38a4/V2M-or91x-1APxfGbwSCuCecVYAcm7pgIDj1Tsh6jJPAw1"
+      run: |
+        if [ "${{ job.status }}" = "success" ]; then
+          COLOR="28a745"
+          ICON="✅"
+          STATUS="PASSED"
+        else
+          COLOR="dc3545"
+          ICON="❌"
+          STATUS="FAILED"
+        fi
+
+        PAYLOAD=$(cat <<'INNEREOF'
+        {
+          "@type": "MessageCard",
+          "@context": "http://schema.org/extensions",
+          "themeColor": "COLOR_PLACEHOLDER",
+          "text": "**ICON_PLACEHOLDER BDD Test Run: STATUS_PLACEHOLDER** | Env: ENV_PLACEHOLDER | Branch: BRANCH_PLACEHOLDER<br><br>📊 **Features:** FEATURES_PLACEHOLDER | **Scenarios:** SCENARIOS_PLACEHOLDER<br>✅ **Passed:** PASSED_PLACEHOLDER | ❌ **Failed:** FAILED_PLACEHOLDER | ⏭️ **Skipped:** SKIPPED_PLACEHOLDER | **Total Steps:** TOTAL_PLACEHOLDER<br><br>👤 **Triggered by:** ACTOR_PLACEHOLDER | **Commit:** COMMIT_PLACEHOLDER<br><br>[View Workflow Run](RUN_URL_PLACEHOLDER) | [View Commit](COMMIT_URL_PLACEHOLDER)"
+        }
+        INNEREOF
+        )
+
+        PAYLOAD=$(echo "$PAYLOAD" | sed "s|COLOR_PLACEHOLDER|${COLOR}|g")
+        PAYLOAD=$(echo "$PAYLOAD" | sed "s|ICON_PLACEHOLDER|${ICON}|g")
+        PAYLOAD=$(echo "$PAYLOAD" | sed "s|STATUS_PLACEHOLDER|${STATUS}|g")
+        PAYLOAD=$(echo "$PAYLOAD" | sed "s|ENV_PLACEHOLDER|${{ env.ENV }}|g")
+        PAYLOAD=$(echo "$PAYLOAD" | sed "s|BRANCH_PLACEHOLDER|${{ github.ref_name }}|g")
+        PAYLOAD=$(echo "$PAYLOAD" | sed "s|FEATURES_PLACEHOLDER|${{ steps.test-results.outputs.features }}|g")
+        PAYLOAD=$(echo "$PAYLOAD" | sed "s|SCENARIOS_PLACEHOLDER|${{ steps.test-results.outputs.scenarios }}|g")
+        PAYLOAD=$(echo "$PAYLOAD" | sed "s|PASSED_PLACEHOLDER|${{ steps.test-results.outputs.passed }}|g")
+        PAYLOAD=$(echo "$PAYLOAD" | sed "s|FAILED_PLACEHOLDER|${{ steps.test-results.outputs.failed }}|g")
+        PAYLOAD=$(echo "$PAYLOAD" | sed "s|SKIPPED_PLACEHOLDER|${{ steps.test-results.outputs.skipped }}|g")
+        PAYLOAD=$(echo "$PAYLOAD" | sed "s|TOTAL_PLACEHOLDER|${{ steps.test-results.outputs.total }}|g")
+        PAYLOAD=$(echo "$PAYLOAD" | sed "s|ACTOR_PLACEHOLDER|${{ github.actor }}|g")
+        PAYLOAD=$(echo "$PAYLOAD" | sed "s|COMMIT_PLACEHOLDER|$(echo ${{ github.sha }} | cut -c1-7)|g")
+        PAYLOAD=$(echo "$PAYLOAD" | sed "s|RUN_URL_PLACEHOLDER|https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|g")
+        PAYLOAD=$(echo "$PAYLOAD" | sed "s|COMMIT_URL_PLACEHOLDER|https://github.com/${{ github.repository }}/commit/${{ github.sha }}|g")
+
+        curl -s -H "Content-Type: application/json" -d "$PAYLOAD" "$WEBHOOK_URL"
 
    
 
