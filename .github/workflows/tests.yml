@@ -24,6 +24,7 @@ jobs:
       run: npm run test:bdd || npm run test:rerun
 
     - name: Notify dedicated teams channel
+      if: success() || failure()
       uses: jdcargile/ms-teams-notification@v1.4
       with:
         ms-teams-webhook-uri: https://afgtest.webhook.office.com/webhookb2/526935bf-3267-4f9e-a896-31a73dac597e@f7a3baa7-fae3-415b-b481-a71ed92d3103/IncomingWebhook/cfae1b3a8ab24238b7a9c5e95eb1b560/fddd096f-a6ac-4669-a86e-83a4d17b38a4/V2M-or91x-1APxfGbwSCuCecVYAcm7pgIDj1Tsh6jJPAw1
