@@ -90,7 +90,7 @@ const payload = JSON.stringify({
     '',
     `👤 **Triggered by:** ${process.env.ACTOR || ''} | **Commit:** ${shortSha}`,
     '',
-    `[View Workflow Run](https://github.com/${repo}/actions/runs/${runId}) | [View Commit](https://github.com/${repo}/commit/${process.env.SHA || ''})`
+    `[View Workflow Run](https://github.com/${repo}/actions/runs/${runId}) | [View Commit](https://github.com/${repo}/commit/${process.env.SHA || ''}) | [Download Artifacts](https://github.com/${repo}/actions/runs/${runId}#artifacts)`
   ].join('<br>')
 });
 
