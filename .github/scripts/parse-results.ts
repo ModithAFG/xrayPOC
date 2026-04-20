@@ -83,22 +83,50 @@ function buildTeamsCard(results: TestResults): object {
   const repo = env('REPO');
   const runId = env('RUN_ID');
   const sha = env('SHA');
+  const icon = isSuccess ? '✅' : '❌';
+  const status = isSuccess ? 'PASSED' : 'FAILED';
+  const runUrl = `https://github.com/${repo}/actions/runs/${runId}`;
+  const commitUrl = `https://github.com/${repo}/commit/${sha}`;
 
   return {
     '@type': 'MessageCard',
     '@context': 'http://schema.org/extensions',
     themeColor: isSuccess ? '28a745' : 'dc3545',
-    text: [
-      `**${isSuccess ? '✅' : '❌'} BDD Test Run: ${isSuccess ? 'PASSED' : 'FAILED'}** | Env: ${env('ENV_NAME')} | Branch: ${env('BRANCH')}`,
-      '',
-      `🏷️ **Tags:** ${results.tags.join(', ') || 'none'}`,
-      `📊 **Features:** ${results.features} | **Scenarios:** ${results.scenarios}`,
-      `✅ **Passed:** ${results.passed} | ❌ **Failed:** ${results.failed} | ⏭️ **Skipped:** ${results.skipped} | **Total Steps:** ${results.total}`,
-      '',
-      `👤 **Triggered by:** ${env('ACTOR')} | **Commit:** ${sha.substring(0, 7)}`,
-      '',
-      `[View Workflow Run](https://github.com/${repo}/actions/runs/${runId}) | [View Commit](https://github.com/${repo}/commit/${sha}) | [Download Artifacts](https://github.com/${repo}/actions/runs/${runId}#artifacts)`,
-    ].join('<br>'),
+    summary: `BDD Test Run ${status}`,
+    sections: [
+      {
+        activityTitle: `${icon} **BDD Test Run: ${status}**`,
+        activitySubtitle: `${env('ENV_NAME')} environment · \`${env('BRANCH')}\` branch · triggered by **${env('ACTOR')}**`,
+        facts: [
+          { name: '🏷️ Tags',      value: results.tags.join('  ') || 'none' },
+          { name: '📊 Features',   value: `${results.features}` },
+          { name: '📋 Scenarios',  value: `${results.scenarios}` },
+          { name: '✅ Passed',     value: `${results.passed}` },
+          { name: '❌ Failed',     value: `${results.failed}` },
+          { name: '⏭️ Skipped',   value: `${results.skipped}` },
+          { name: '📝 Total Steps', value: `${results.total}` },
+          { name: '🔗 Commit',     value: `[${sha.substring(0, 7)}](${commitUrl})` },
+        ],
+        markdown: true,
+      },
+    ],
+    potentialAction: [
+      {
+        '@type': 'OpenUri',
+        name: '🔍 View Workflow Run',
+        targets: [{ os: 'default', uri: runUrl }],
+      },
+      {
+        '@type': 'OpenUri',
+        name: '📦 Download Artifacts',
+        targets: [{ os: 'default', uri: `${runUrl}#artifacts` }],
+      },
+      {
+        '@type': 'OpenUri',
+        name: '📝 View Commit',
+        targets: [{ os: 'default', uri: commitUrl }],
+      },
+    ],
   };
 }
 
