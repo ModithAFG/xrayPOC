@@ -96,15 +96,15 @@ function buildTeamsCard(results: TestResults): object {
     sections: [
       {
         activityTitle: `${icon} **BDD Test Run: ${status}**`,
-        activitySubtitle: `${env('ENV_NAME')} environment · \`${env('BRANCH')}\` branch · triggered by **${env('ACTOR')}**`,
+        activitySubtitle: `${env('ENV_NAME')} environment · \`${env('BRANCH')}\` branch · triggered by **${env('ACTOR')}** via **${env('EVENT_NAME')}**`,
         facts: [
           { name: '🏷️ Tags',      value: results.tags.join('  ') || 'none' },
           { name: '📊 Features',   value: `${results.features}` },
-          { name: '📋 Scenarios',  value: `${results.scenarios}` },
+        //   { name: '📋 Scenarios',  value: `${results.scenarios}` },
           { name: '✅ Passed',     value: `${results.passed}` },
           { name: '❌ Failed',     value: `${results.failed}` },
-          { name: '⏭️ Skipped',   value: `${results.skipped}` },
-          { name: '📝 Total Steps', value: `${results.total}` },
+        //   { name: '⏭️ Skipped',   value: `${results.skipped}` },
+        //   { name: '📝 Total Steps', value: `${results.total}` },
           { name: '🔗 Commit',     value: `[${sha.substring(0, 7)}](${commitUrl})` },
         ],
         markdown: true,
