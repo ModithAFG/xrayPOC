@@ -29,111 +29,38 @@ jobs:
       id: test-results
       run: |
         if [ -f test-results/cucumber-report.json ]; then
-          node -e "
-            const r = require('./test-results/cucumber-report.json');
-            const fs = require('fs');
-            const out = (k,v) => fs.appendFileSync(process.env.GITHUB_OUTPUT, k + '=' + v + '\n');
-            let stepsPassed=0, stepsFailed=0, stepsSkipped=0;
-            let scenariosPassed=0, scenariosFailed=0;
-            let totalDuration=0;
-            r.forEach(f => f.elements?.forEach(e => {
-              let failed = false;
-              e.steps?.forEach(st => {
-                if (st.hidden) return;
-                totalDuration += (st.result.duration || 0);
-                if (st.result.status === 'passed') stepsPassed++;
-                else if (st.result.status === 'failed') { stepsFailed++; failed = true; }
-                else stepsSkipped++;
-              });
-              if (failed) scenariosFailed++; else scenariosPassed++;
-            }));
-            out('features', r.length);
-            out('scenarios', scenariosPassed + scenariosFailed);
-            out('scenarios_passed', scenariosPassed);
-            out('scenarios_failed', scenariosFailed);
-            out('passed', stepsPassed);
-            out('failed', stepsFailed);
-            out('skipped', stepsSkipped);
-            out('total', stepsPassed + stepsFailed + stepsSkipped);
-            out('duration', (totalDuration / 1e9).toFixed(3));
-          "
+          TOTAL=$(node -e "const r=require('./test-results/cucumber-report.json'); let p=0,f=0,s=0; r.forEach(f2 => f2.elements?.forEach(e => e.steps?.forEach(st => { if(st.result.status==='passed') p++; else if(st.result.status==='failed') f++; else s++; }))); console.log(p+f+s);")
+          PASSED=$(node -e "const r=require('./test-results/cucumber-report.json'); let p=0; r.forEach(f2 => f2.elements?.forEach(e => e.steps?.forEach(st => { if(st.result.status==='passed') p++; }))); console.log(p);")
+          FAILED=$(node -e "const r=require('./test-results/cucumber-report.json'); let f=0; r.forEach(f2 => f2.elements?.forEach(e => e.steps?.forEach(st => { if(st.result.status==='failed') f++; }))); console.log(f);")
+          SKIPPED=$(node -e "const r=require('./test-results/cucumber-report.json'); let s=0; r.forEach(f2 => f2.elements?.forEach(e => e.steps?.forEach(st => { if(st.result.status!=='passed' && st.result.status!=='failed') s++; }))); console.log(s);")
+          SCENARIOS=$(node -e "const r=require('./test-results/cucumber-report.json'); let t=0; r.forEach(f2 => f2.elements?.forEach(() => t++)); console.log(t);")
+          FEATURES=$(node -e "const r=require('./test-results/cucumber-report.json'); console.log(r.length);")
+          echo "total=$TOTAL" >> $GITHUB_OUTPUT
+          echo "passed=$PASSED" >> $GITHUB_OUTPUT
+          echo "failed=$FAILED" >> $GITHUB_OUTPUT
+          echo "skipped=$SKIPPED" >> $GITHUB_OUTPUT
+          echo "scenarios=$SCENARIOS" >> $GITHUB_OUTPUT
+          echo "features=$FEATURES" >> $GITHUB_OUTPUT
         else
-          echo "features=0" >> $GITHUB_OUTPUT
-          echo "scenarios=0" >> $GITHUB_OUTPUT
-          echo "scenarios_passed=0" >> $GITHUB_OUTPUT
-          echo "scenarios_failed=0" >> $GITHUB_OUTPUT
+          echo "total=0" >> $GITHUB_OUTPUT
           echo "passed=0" >> $GITHUB_OUTPUT
           echo "failed=0" >> $GITHUB_OUTPUT
           echo "skipped=0" >> $GITHUB_OUTPUT
-          echo "total=0" >> $GITHUB_OUTPUT
-          echo "duration=0" >> $GITHUB_OUTPUT
+          echo "scenarios=0" >> $GITHUB_OUTPUT
+          echo "features=0" >> $GITHUB_OUTPUT
         fi
-
-    - name: Upload test artifacts
-      if: success() || failure()
-      uses: actions/upload-artifact@v4
-      with:
-        name: test-results
-        path: |
-          test-results/cucumber-report.html
-          test-results/cucumber-report.json
-        retention-days: 30
 
 
 
     - name: Notify dedicated teams channel
       if: success() || failure()
-      run: |
-        STATUS="${{ job.status }}"
-        if [ "$STATUS" = "success" ]; then
-          COLOR="28a745"
-          TITLE="✅ BDD Test Run PASSED"
-        else
-          COLOR="dc3545"
-          TITLE="❌ BDD Test Run FAILED"
-        fi
-
-        cat <<EOF > /tmp/teams-payload.json
-        {
-          "@type": "MessageCard",
-          "@context": "http://schema.org/extensions",
-          "themeColor": "${COLOR}",
-          "summary": "${TITLE}",
-          "sections": [
-            {
-              "activityTitle": "${TITLE}",
-              "activitySubtitle": "CI #${{ github.run_number }} on ${{ github.repository }} | Branch: ${{ github.ref_name }} | Env: ${{ env.ENV }}",
-              "facts": [
-                { "name": "Features", "value": "${{ steps.test-results.outputs.features }}" },
-                { "name": "Scenarios", "value": "${{ steps.test-results.outputs.scenarios }} (${{ steps.test-results.outputs.scenarios_passed }} passed, ${{ steps.test-results.outputs.scenarios_failed }} failed)" },
-                { "name": "Steps Passed", "value": "${{ steps.test-results.outputs.passed }}" },
-                { "name": "Steps Failed", "value": "${{ steps.test-results.outputs.failed }}" },
-                { "name": "Steps Skipped", "value": "${{ steps.test-results.outputs.skipped }}" },
-                { "name": "Total Steps", "value": "${{ steps.test-results.outputs.total }}" },
-                { "name": "Duration", "value": "${{ steps.test-results.outputs.duration }}s" },
-                { "name": "Triggered by", "value": "${{ github.actor }}" },
-                { "name": "Commit", "value": "${{ github.sha }}" }
-              ],
-              "markdown": true
-            }
-          ],
-          "potentialAction": [
-            {
-              "@type": "OpenUri",
-              "name": "View Workflow Run",
-              "targets": [{ "os": "default", "uri": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" }]
-            },
-            {
-              "@type": "OpenUri",
-              "name": "View Commit",
-              "targets": [{ "os": "default", "uri": "https://github.com/${{ github.repository }}/commit/${{ github.sha }}" }]
-            }
-          ]
-        }
-        EOF
-
-        curl -s -H "Content-Type: application/json" -d @/tmp/teams-payload.json \
-          "https://afgtest.webhook.office.com/webhookb2/526935bf-3267-4f9e-a896-31a73dac597e@f7a3baa7-fae3-415b-b481-a71ed92d3103/IncomingWebhook/cfae1b3a8ab24238b7a9c5e95eb1b560/fddd096f-a6ac-4669-a86e-83a4d17b38a4/V2M-or91x-1APxfGbwSCuCecVYAcm7pgIDj1Tsh6jJPAw1"
+      uses: jdcargile/ms-teams-notification@v1.4
+      with:
+        github-token: ${{ github.token }}
+        ms-teams-webhook-uri: https://afgtest.webhook.office.com/webhookb2/526935bf-3267-4f9e-a896-31a73dac597e@f7a3baa7-fae3-415b-b481-a71ed92d3103/IncomingWebhook/cfae1b3a8ab24238b7a9c5e95eb1b560/fddd096f-a6ac-4669-a86e-83a4d17b38a4/V2M-or91x-1APxfGbwSCuCecVYAcm7pgIDj1Tsh6jJPAw1
+        notification-summary: "**BDD Test Run: ${{ job.status == 'success' && '✅ PASSED' || '❌ FAILED' }}** | <br> Env: ${{ env.ENV }} | <br> Branch: ${{ github.ref_name }}<br>📊 Features: ${{ steps.test-results.outputs.features }} | Scenarios: ${{ steps.test-results.outputs.scenarios }}<br>✅ Passed: ${{ steps.test-results.outputs.passed }} | ❌ Failed: ${{ steps.test-results.outputs.failed }} | ⏭️ Skipped: ${{ steps.test-results.outputs.skipped }} | Total Steps: ${{ steps.test-results.outputs.total }}"
+        notification-color: ${{ job.status == 'success' && '28a745' || 'dc3545' }}
+        verbose-logging: true
 
    
 
