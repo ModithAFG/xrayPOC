@@ -24,29 +24,18 @@ jobs:
       id: bdd-tests
       run: npm run test:bdd || npm run test:rerun
 
-    - name: Parse test results
-      if: success() || failure()
-      id: test-results
-      run: node .github/scripts/parse-results.js
-
-    - name: Notify dedicated teams channel
+    - name: Parse results and notify Teams
       if: success() || failure()
       env:
         JOB_STATUS: ${{ job.status }}
         WEBHOOK_URL: "https://afgtest.webhook.office.com/webhookb2/526935bf-3267-4f9e-a896-31a73dac597e@f7a3baa7-fae3-415b-b481-a71ed92d3103/IncomingWebhook/cfae1b3a8ab24238b7a9c5e95eb1b560/fddd096f-a6ac-4669-a86e-83a4d17b38a4/V2M-or91x-1APxfGbwSCuCecVYAcm7pgIDj1Tsh6jJPAw1"
         ENV_NAME: ${{ env.ENV }}
         BRANCH: ${{ github.ref_name }}
-        FEATURES: ${{ steps.test-results.outputs.features }}
-        SCENARIOS: ${{ steps.test-results.outputs.scenarios }}
-        PASSED: ${{ steps.test-results.outputs.passed }}
-        FAILED: ${{ steps.test-results.outputs.failed }}
-        SKIPPED: ${{ steps.test-results.outputs.skipped }}
-        TOTAL: ${{ steps.test-results.outputs.total }}
         ACTOR: ${{ github.actor }}
         SHA: ${{ github.sha }}
         REPO: ${{ github.repository }}
         RUN_ID: ${{ github.run_id }}
-      run: bash .github/scripts/teams-notify.sh
+      run: npx ts-node .github/scripts/parse-results.ts
 
    
 
