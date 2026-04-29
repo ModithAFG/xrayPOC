@@ -24,6 +24,9 @@ jobs:
       id: bdd-tests
       run: npm run test:bdd || npm run test:rerun
 
+    - name: Install Artillery
+      run: npm install -g artillery@2.0.30
+
     - name: Upload test artifacts
       if: success() || failure()
       uses: actions/upload-artifact@v4
@@ -33,6 +36,12 @@ jobs:
           test-results/cucumber-report.html
           test-results/cucumber-report.json
         retention-days: 30
+
+    - name: Warm up Endpoints
+      continue-on-error: true
+      uses: artilleryio/action-cli@v1
+      with:
+        command: run  artillery/test.yml 
 
     - name: Parse results and notify Teams
       if: success() || failure()
@@ -45,7 +54,6 @@ jobs:
         SHA: ${{ github.sha }}
         REPO: ${{ github.repository }}
         RUN_ID: ${{ github.run_id }}
-        EVENT_NAME: ${{ github.event_name }}
       run: npx ts-node .github/scripts/parse-results.ts
 
    
