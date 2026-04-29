@@ -24,8 +24,8 @@ jobs:
       id: bdd-tests
       run: npm run test:bdd || npm run test:rerun
 
-    - name: Install Artillery
-      run: npm install -g artillery@2.0.30
+    # - name: Install Artillery
+    #   run: npm install -g artillery@2.0.30
 
     - name: Upload test artifacts
       if: success() || failure()
