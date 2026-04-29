@@ -39,7 +39,7 @@ jobs:
 
     - name: Warm up Endpoints
       continue-on-error: true
-      uses: artilleryio/action-cli@v1
+      uses: artilleryio/action-cli@v2
       with:
         command: run  artillery/test.yml 
 
