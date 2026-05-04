@@ -39,9 +39,7 @@ jobs:
 
     - name: Warm up Endpoints
       continue-on-error: true
-      uses: artilleryio/action-cli@v2
-      with:
-        command: artillery run  artillery/test.yml 
+      run: artillery run  artillery/test.yml 
 
     - name: Parse results and notify Teams
       if: success() || failure()
